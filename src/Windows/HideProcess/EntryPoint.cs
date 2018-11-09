@@ -47,9 +47,9 @@ namespace HideProcess
         /// </summary>
         internal string ProcessName;
 
-        public HideProcess(object context, string arg1) { }
+        public HideProcess(IContext context, string arg1) { }
 
-        public void Run(object context, string processName)
+        public void Run(IContext context, string processName)
         {
             // Save the process name to filter out of the list
             ProcessName = processName;
