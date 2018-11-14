@@ -6,6 +6,9 @@ namespace HideProcess
 {
     public class HideProcess : IEntryPoint
     {
+        // Process structures and GetProcessShortName code from:
+        // https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.Process/src/System/Diagnostics/ProcessManager.Windows.cs
+
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
         internal delegate int NtQuerySystemInformationT(int query, IntPtr dataPtr, int size, out int returnedSize);
 
@@ -38,7 +41,7 @@ namespace HideProcess
         }
 
         /// <summary>
-        /// Handle to the ntdll!NtQuerySystemInformation function hook.
+        /// Handle for the ntdll!NtQuerySystemInformation function hook.
         /// </summary>
         IHook QuerySysInfo;
 
@@ -51,23 +54,22 @@ namespace HideProcess
 
         public void Run(IContext context, string processName)
         {
-            // Save the process name to filter out of the list
+            // Save the process name to filter out of the list in NtQuerySystemInformation
             ProcessName = processName;
 
             // Detour the ntdll.dll!NtQuerySystemInformation function
-            string[] functionName = new string[] { "ntdll.dll", "NtQuerySystemInformation" };
 
             QuerySysInfo = LocalHook.Create(
-                LocalHook.GetProcAddress(functionName[0], functionName[1]),
+                LocalHook.GetProcAddress("ntdll.dll", "NtQuerySystemInformation"),
                 new NtQuerySystemInformationT(Detour_NtQuerySystemInformation),
                 this);
 
-            // Active the detour for all threads
+            // Activate the detour for all threads
             QuerySysInfo.Enabled = true;
         }
 
         /// <summary>
-        /// Remove a process the list returned by NtQuerySystemInformation.
+        /// Remove a process from the list returned by NtQuerySystemInformation.
         /// </summary>
         /// <param name="query"></param>
         /// <param name="dataPtr"></param>
