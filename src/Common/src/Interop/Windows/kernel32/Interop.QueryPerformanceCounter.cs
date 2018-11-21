@@ -11,6 +11,6 @@ internal partial class Interop
     internal partial class Kernel32
     {
         [DllImport(Libraries.Kernel32)]
-        internal static extern bool QueryPerformanceCounter(out long value);
+        internal static extern BOOL QueryPerformanceCounter(out long performanceCount);
     }
 }

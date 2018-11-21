@@ -15,20 +15,33 @@ namespace SpeedHack
         private delegate uint GetTickCountDel();
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        private delegate uint GetTickCount64Del();
+        private delegate ulong GetTickCount64Del();
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        private delegate uint QueryPerformanceCounterDel(out long value);
+        private delegate Interop.BOOL QueryPerformanceCounterDel(out long performanceCount);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
         private delegate uint SleepExDel(uint milliSeconds, Interop.BOOL alertable);
 
-        private float _speedMultiplier = 0.0f;
+        private float _acceleration;
+
+        // Initial time from GetTickCount
+        private uint _baseTime;
+        // Initial time from GetTickCount64
+        private ulong _baseTime64;
+        // Intial value of the performance counter
+        private long _basePerformanceCount;
 
         public SpeedHack(IContext context, float arg1) { }
-        public void Run(IContext context, float speedMultiplier)
+
+        public void Run(IContext context, float acceleration)
         {
-            _speedMultiplier = speedMultiplier;
+            _acceleration = acceleration;
+
+            // Get current counts to use as a base for modification
+            _baseTime = Interop.Kernel32.GetTickCount();
+            _baseTime64 = Interop.Kernel32.GetTickCount64();
+            Interop.Kernel32.QueryPerformanceCounter(out _basePerformanceCount);
 
             // Create detours for implementing the speed hack
             GetTickCount = LocalHook.Create(
@@ -60,23 +73,33 @@ namespace SpeedHack
 
         internal uint Detour_GetTickCount()
         {
+            SpeedHack This = (SpeedHack)HookRuntimeInfo.Callback;
+            var tickCount = Interop.Kernel32.GetTickCount();
+            return (uint)(This._baseTime + ((tickCount - This._baseTime)) * This._acceleration);
+        }
 
-            return 0;
-        }
-        internal uint Detour_GetTickCount64()
+        internal ulong Detour_GetTickCount64()
         {
+            SpeedHack This = (SpeedHack)HookRuntimeInfo.Callback;
+            var tickCount = Interop.Kernel32.GetTickCount64();
+            return (ulong)(This._baseTime + ((tickCount - This._baseTime64)) * This._acceleration);
+        }
 
-            return 0;
-        }
-        internal uint Detour_QueryPerformanceCounter(out long value)
+        internal Interop.BOOL Detour_QueryPerformanceCounter(out long performanceCount)
         {
-            value = 0;
-            return 0;
+            SpeedHack This = (SpeedHack)HookRuntimeInfo.Callback;
+            if(Interop.Kernel32.QueryPerformanceCounter(out performanceCount) == Interop.BOOL.FALSE)
+            {
+                return Interop.BOOL.FALSE;
+            }
+            performanceCount = (long)(performanceCount + ((performanceCount - This._basePerformanceCount)) * This._acceleration);
+            return Interop.BOOL.TRUE;
         }
+
         internal uint Detour_SleepEx(uint milliSeconds, Interop.BOOL alertable)
         {
             SpeedHack This = (SpeedHack)HookRuntimeInfo.Callback;
-            return Interop.Kernel32.SleepEx((uint)(milliSeconds / This._speedMultiplier), alertable);
+            return Interop.Kernel32.SleepEx((uint)(milliSeconds / This._acceleration), alertable);
         }
     }
 }
