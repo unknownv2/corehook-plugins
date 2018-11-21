@@ -92,7 +92,7 @@ namespace SpeedHack
             {
                 return Interop.BOOL.FALSE;
             }
-            performanceCount = (long)(performanceCount + ((performanceCount - This._basePerformanceCount)) * This._acceleration);
+            performanceCount = (long)(This._basePerformanceCount + ((performanceCount - This._basePerformanceCount)) * This._acceleration);
             return Interop.BOOL.TRUE;
         }
 
