@@ -82,7 +82,7 @@ namespace SpeedHack
         {
             SpeedHack This = (SpeedHack)HookRuntimeInfo.Callback;
             var tickCount = Interop.Kernel32.GetTickCount64();
-            return (ulong)(This._baseTime + ((tickCount - This._baseTime64)) * This._acceleration);
+            return (ulong)(This._baseTime64 + ((tickCount - This._baseTime64)) * This._acceleration);
         }
 
         internal Interop.BOOL Detour_QueryPerformanceCounter(out long performanceCount)
