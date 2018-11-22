@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CoreHook" Version="1.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(CommonPath)\Interop\Windows\Interop.Libraries.cs">
+      <Link>Common\Interop\Windows\Interop.Libraries.cs</Link>
+    </Compile>  
+    <Compile Include="$(CommonPath)\Interop\Windows\Winsock\Interop.WSASend.cs">
+      <Link>Common\Interop\Windows\Winsock\Interop.WSASend.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\Winsock\Interop.WSARecv.cs">
+      <Link>Common\Interop\Windows\Winsock\Interop.WSARecv.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\Winsock\Interop.recv.cs">
+      <Link>Common\Interop\Windows\Winsock\Interop.recv.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\Winsock\Interop.recvfrom.cs">
+      <Link>Common\Interop\Windows\Winsock\Interop.recvfrom.cs</Link>
+    </Compile>    
+    <Compile Include="$(CommonPath)\Interop\Windows\Winsock\Interop.send.cs">
+      <Link>Common\Interop\Windows\Winsock\Interop.send.cs</Link>
+    </Compile> 
+    <Compile Include="$(CommonPath)\Interop\Windows\Winsock\Interop.sendto.cs">
+      <Link>Common\Interop\Windows\Winsock\Interop.sendto.cs</Link>
+    </Compile>     
+    <Compile Include="$(CommonPath)\Interop\Windows\Winsock\WSABuffer.cs">
+      <Link>Common\Interop\Windows\Winsock\WSABuffer.cs</Link>
+    </Compile>    
+  </ItemGroup> 
+</Project>
