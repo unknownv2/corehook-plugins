@@ -35,5 +35,28 @@ namespace SocketHook
         {
             return Interop.Winsock.WSASend(socketHandle, buffers, bufferCount, out bytesTransferred, socketFlags, overlapped, completionRoutine);
         }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        private unsafe delegate SocketError DWSARecv(
+            IntPtr socketHandle,
+            WSABuffer* buffer,
+            int bufferCount,
+            out int bytesTransferred,
+            ref SocketFlags socketFlags,
+            NativeOverlapped* overlapped,
+            IntPtr completionRoutine);
+
+        private static unsafe SocketError Detour_WSARecv(
+            IntPtr socketHandle,
+            ref WSABuffer buffer,
+            int bufferCount,
+            out int bytesTransferred,
+            ref SocketFlags socketFlags,
+            NativeOverlapped* overlapped,
+            IntPtr completionRoutine)
+        {
+            WSABuffer localBuffer = buffer;
+            return Interop.Winsock.WSARecv(socketHandle, &localBuffer, bufferCount, out bytesTransferred, ref socketFlags, overlapped, completionRoutine);
+        }
     }
 }

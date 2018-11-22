@@ -18,6 +18,9 @@
     <Compile Include="$(CommonPath)\Interop\Windows\Winsock\Interop.WSASend.cs">
       <Link>Common\Interop\Windows\Winsock\Interop.WSASend.cs</Link>
     </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\Winsock\Interop.WSARecv.cs">
+      <Link>Common\Interop\Windows\Winsock\Interop.WSARecv.cs</Link>
+    </Compile>
     <Compile Include="$(CommonPath)\Interop\Windows\Winsock\WSABuffer.cs">
       <Link>Common\Interop\Windows\Winsock\WSABuffer.cs</Link>
     </Compile>    
