@@ -58,5 +58,35 @@ namespace SocketHook
             WSABuffer localBuffer = buffer;
             return Interop.Winsock.WSARecv(socketHandle, &localBuffer, bufferCount, out bytesTransferred, ref socketFlags, overlapped, completionRoutine);
         }
+
+        internal unsafe delegate int Dsend(
+             [In] IntPtr socketHandle,
+             [In] byte* pinnedBuffer,
+             [In] int len,
+             [In] SocketFlags socketFlags);
+
+        internal unsafe delegate int Drecv(
+            [In] IntPtr socketHandle,
+            [In] byte* pinnedBuffer,
+            [In] int len,
+            [In] SocketFlags socketFlags);
+
+        private unsafe int Detour_recv(
+            [In] IntPtr socketHandle,
+            [In] byte* pinnedBuffer,
+            [In] int len,
+            [In] SocketFlags socketFlags)
+        {
+            return Interop.Winsock.recv(socketHandle, pinnedBuffer, len, socketFlags);
+        }
+
+        private unsafe int Detour_send(
+            [In] IntPtr socketHandle,
+            [In] byte* pinnedBuffer,
+            [In] int len,
+            [In] SocketFlags socketFlags)
+        {
+            return Interop.Winsock.send(socketHandle, pinnedBuffer, len, socketFlags);
+        }
     }
 }
