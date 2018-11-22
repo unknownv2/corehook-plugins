@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.28010.2050
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HideProcess", "src\Windows\HideProcess\HideProcess.csproj", "{160EFE71-8550-47C7-B2DD-044BBEF5BC40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeedHack", "src\Windows\SpeedHack\SpeedHack.csproj", "{C4078A9E-D7A5-45AE-96D9-D7582E0302B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpeedHack", "src\Windows\SpeedHack\SpeedHack.csproj", "{C4078A9E-D7A5-45AE-96D9-D7582E0302B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketHook", "src\Windows\SocketHook\SocketHook.csproj", "{5290068B-9BD0-4DF7-B5F9-8821FE617B24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{C4078A9E-D7A5-45AE-96D9-D7582E0302B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4078A9E-D7A5-45AE-96D9-D7582E0302B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4078A9E-D7A5-45AE-96D9-D7582E0302B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5290068B-9BD0-4DF7-B5F9-8821FE617B24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5290068B-9BD0-4DF7-B5F9-8821FE617B24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5290068B-9BD0-4DF7-B5F9-8821FE617B24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5290068B-9BD0-4DF7-B5F9-8821FE617B24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
