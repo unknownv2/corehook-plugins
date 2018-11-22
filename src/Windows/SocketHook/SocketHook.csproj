@@ -24,9 +24,15 @@
     <Compile Include="$(CommonPath)\Interop\Windows\Winsock\Interop.recv.cs">
       <Link>Common\Interop\Windows\Winsock\Interop.recv.cs</Link>
     </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\Winsock\Interop.recvfrom.cs">
+      <Link>Common\Interop\Windows\Winsock\Interop.recvfrom.cs</Link>
+    </Compile>    
     <Compile Include="$(CommonPath)\Interop\Windows\Winsock\Interop.send.cs">
       <Link>Common\Interop\Windows\Winsock\Interop.send.cs</Link>
     </Compile> 
+    <Compile Include="$(CommonPath)\Interop\Windows\Winsock\Interop.sendto.cs">
+      <Link>Common\Interop\Windows\Winsock\Interop.sendto.cs</Link>
+    </Compile>     
     <Compile Include="$(CommonPath)\Interop\Windows\Winsock\WSABuffer.cs">
       <Link>Common\Interop\Windows\Winsock\WSABuffer.cs</Link>
     </Compile>    

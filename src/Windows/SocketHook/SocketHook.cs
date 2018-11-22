@@ -88,5 +88,41 @@ namespace SocketHook
         {
             return Interop.Winsock.send(socketHandle, pinnedBuffer, len, socketFlags);
         }
+
+        internal unsafe delegate int Dsendto(
+            [In] IntPtr socketHandle,
+            [In] byte* pinnedBuffer,
+            [In] int len,
+            [In] SocketFlags socketFlags,
+            [In] byte[] socketAddress,
+            [In] int socketAddressSize);
+
+        internal unsafe delegate int Drecvfrom(
+            [In] IntPtr socketHandle,
+            [In] byte* pinnedBuffer,
+            [In] int len,
+            [In] SocketFlags socketFlags);
+
+        private unsafe int Detour_recvfrom(
+            [In] IntPtr socketHandle,
+            [In] byte* pinnedBuffer,
+            [In] int len,
+            [In] SocketFlags socketFlags,
+            [Out] byte[] socketAddress,
+            [In, Out] ref int socketAddressSize)
+        {
+            return Interop.Winsock.recvfrom(socketHandle, pinnedBuffer, len, socketFlags, socketAddress, ref socketAddressSize);
+        }
+
+        private unsafe int Detour_sendto(
+            [In] IntPtr socketHandle,
+            [In] byte* pinnedBuffer,
+            [In] int len,
+            [In] SocketFlags socketFlags,
+            [In] byte[] socketAddress,
+            [In] int socketAddressSize)
+        {
+            return Interop.Winsock.sendto(socketHandle, pinnedBuffer, len, socketFlags, socketAddress, socketAddressSize);
+        }
     }
 }
