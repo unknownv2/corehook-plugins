@@ -20,12 +20,12 @@ namespace SocketHook
         public unsafe void Run(IContext context)
         {
             // Create network function hooks
-            WSASendHook = HookFactory.CreateHook<DWSASend>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "WSASend"), Detour_WsaSend);
-            WSARecvHook = HookFactory.CreateHook<DWSARecv>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "WSARecv"), Detour_WSARecv);
-            RecvHook = HookFactory.CreateHook<Drecv>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "recv"), Detour_recv);
-            SendHook = HookFactory.CreateHook<Dsend>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "send"), Detour_send);
-            RecvfromHook = HookFactory.CreateHook<Drecvfrom>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "recvfrom"), Detour_recvfrom);
-            SendtoHook = HookFactory.CreateHook<Dsendto>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "sendto"), Detour_sendto);
+            WSASendHook = HookFactory.CreateHook<DWSASend>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "WSASend"), Detour_WsaSend, this);
+            WSARecvHook = HookFactory.CreateHook<DWSARecv>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "WSARecv"), Detour_WSARecv, this);
+            RecvHook = HookFactory.CreateHook<Drecv>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "recv"), Detour_recv, this);
+            SendHook = HookFactory.CreateHook<Dsend>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "send"), Detour_send, this);
+            RecvfromHook = HookFactory.CreateHook<Drecvfrom>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "recvfrom"), Detour_recvfrom, this);
+            SendtoHook = HookFactory.CreateHook<Dsendto>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "sendto"), Detour_sendto, this);
 
             // Enable hooks for all threads
             WSASendHook.Enabled = true;
