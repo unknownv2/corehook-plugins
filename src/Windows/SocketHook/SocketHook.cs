@@ -20,8 +20,8 @@ namespace SocketHook
         public unsafe void Run(IContext context)
         {
             // Create network function hooks
-            WSASendHook = HookFactory.CreateHook<DWSASend>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "WSASend"), Detour_WsaSend, this);
             WSARecvHook = HookFactory.CreateHook<DWSARecv>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "WSARecv"), Detour_WSARecv, this);
+            WSASendHook = HookFactory.CreateHook<DWSASend>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "WSASend"), Detour_WsaSend, this);
             RecvHook = HookFactory.CreateHook<Drecv>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "recv"), Detour_recv, this);
             SendHook = HookFactory.CreateHook<Dsend>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "send"), Detour_send, this);
             RecvfromHook = HookFactory.CreateHook<Drecvfrom>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "recvfrom"), Detour_recvfrom, this);
