@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CoreHook" Version="1.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(CommonPath)\Interop\Windows\Interop.Libraries.cs">
+      <Link>Common\Interop\Windows\Interop.Libraries.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetTickCount.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.GetTickCount.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetTickCount64.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.GetTickCount64.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.QueryPerformanceCounter.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.QueryPerformanceCounter.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.SleepEx.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.SleepEx.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\Interop.BOOL.cs">
+      <Link>Common\Interop\Windows\Interop.BOOL.cs</Link>
+    </Compile>            
+  </ItemGroup>
+</Project>
