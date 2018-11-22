@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using CoreHook;
 
 namespace SocketHook
@@ -15,8 +16,20 @@ namespace SocketHook
         IHook RecvfromHook;
         IHook SendtoHook;
 
+        /// <summary>
+        /// Keep track of the number of times WSASend was called,
+        /// regardless of return value.
+        /// </summary>
+        private long WsaSendBufferCount;
+
         public SocketHook(IContext context) { }
 
+        /// <summary>
+        /// First method called during plugin load.
+        /// Can be used to create hooks and initialize
+        /// variables.
+        /// </summary>
+        /// <param name="context">Contains any standard information required for each plugin.</param>
         public unsafe void Run(IContext context)
         {
             // Create network function hooks
@@ -34,8 +47,31 @@ namespace SocketHook
             SendHook.Enabled = true;
             RecvfromHook.Enabled = true;
             SendtoHook.Enabled = true;
+
+            ProcessPackets().GetAwaiter().GetResult();
         }
 
+        private async Task ProcessPackets()
+        {
+            // Ensure we are running in a new thread
+            await Task.Yield();
+            try
+            {
+                while (true)
+                {
+                    Thread.Sleep(500);
+                    if (WsaSendBufferCount > 0)
+                    {
+                        Console.WriteLine($"Sent data using WSASend {WsaSendBufferCount} time(s).");
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+        }
+        
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
         private unsafe delegate SocketError DWSASend(
             IntPtr socketHandle,
@@ -55,6 +91,12 @@ namespace SocketHook
             NativeOverlapped* overlapped,
             IntPtr completionRoutine)
         {
+            SocketHook This = (SocketHook)HookRuntimeInfo.Callback;
+            if (This != null)
+            {
+                // Increment WSASend send count
+                This.WsaSendBufferCount++;
+            }
             return Interop.Winsock.WSASend(socketHandle, buffers, bufferCount, out bytesTransferred, socketFlags, overlapped, completionRoutine);
         }
 
