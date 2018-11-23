@@ -19,7 +19,13 @@ namespace FileIO
         /// </summary>
         public uint MaxPathLength = 260;
 
+        /// <summary>
+        /// Hook handle for the kernel32.dll!ReadFile function.
+        /// </summary>
         IHook ReadFileHook;
+        /// <summary>
+        /// Hook handle for the kernel32.dll!WriteFile function.
+        /// </summary>
         IHook WriteFileHook;
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
@@ -38,6 +44,10 @@ namespace FileIO
 
         public FileIO(IContext context) { }
 
+        /// <summary>
+        /// Initialize hooks for our file I/O functions.
+        /// </summary>
+        /// <param name="contex"></param>
         public void Run(IContext contex)
         {
             ReadFileHook = HookFactory.CreateHook<ReadFileDelegate>(LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "ReadFile"), Detour_ReadFile, this);
@@ -60,6 +70,7 @@ namespace FileIO
                 while (true)
                 {
                     Thread.Sleep(500);
+
                     lock (FileList)
                     {
                         if (FileList.Count > 0)
@@ -92,6 +103,7 @@ namespace FileIO
                 char[] filePath = new char[This.MaxPathLength];
                 uint filePathLength = Interop.Kernel32.GetFinalPathNameByHandle(handle, filePath, This.MaxPathLength, 0);
 
+                // Check file name and increment the access count if valid
                 var fileName = new string(filePath, 0, (int)filePathLength);
                 if (!string.IsNullOrWhiteSpace(fileName))
                 {
@@ -113,9 +125,11 @@ namespace FileIO
             FileIO This = (FileIO)HookRuntimeInfo.Callback;
             if (This != null)
             {
-                // Get the file name from the handle and increment the access count
+                // Get the file name from the handle 
                 char[] filePath = new char[This.MaxPathLength];
                 uint filePathLength = Interop.Kernel32.GetFinalPathNameByHandle(handle, filePath, This.MaxPathLength, 0);
+
+                // Check file name and increment the access count if valid
                 var fileName = new string(filePath, 0, (int)filePathLength);
                 if (!string.IsNullOrWhiteSpace(fileName))
                 {
