@@ -9,18 +9,18 @@ namespace SocketHook
 {
     public class SocketHook : IEntryPoint
     {
-        IHook WSASendHook;
-        IHook WSARecvHook;
-        IHook RecvHook;
-        IHook SendHook;
-        IHook RecvfromHook;
-        IHook SendtoHook;
+        private IHook _wsaSendHook;
+        private IHook _wsaRecvHook;
+        private IHook _recvHook;
+        private IHook _sendHook;
+        private IHook _recvfromHook;
+        private IHook _sendtoHook;
 
         /// <summary>
         /// Keep track of the number of times WSASend was called,
         /// regardless of return value.
         /// </summary>
-        private long WsaSendBufferCount;
+        private long _wsaSendBufferCount;
 
         public SocketHook(IContext context) { }
 
@@ -33,20 +33,20 @@ namespace SocketHook
         public unsafe void Run(IContext context)
         {
             // Create network function hooks
-            WSARecvHook = HookFactory.CreateHook<DWSARecv>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "WSARecv"), Detour_WSARecv, this);
-            WSASendHook = HookFactory.CreateHook<DWSASend>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "WSASend"), Detour_WsaSend, this);
-            RecvHook = HookFactory.CreateHook<Drecv>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "recv"), Detour_recv, this);
-            SendHook = HookFactory.CreateHook<Dsend>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "send"), Detour_send, this);
-            RecvfromHook = HookFactory.CreateHook<Drecvfrom>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "recvfrom"), Detour_recvfrom, this);
-            SendtoHook = HookFactory.CreateHook<Dsendto>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "sendto"), Detour_sendto, this);
+            _wsaRecvHook = HookFactory.CreateHook<WSARecvDelegate>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "WSARecv"), Detour_WSARecv, this);
+            _wsaSendHook = HookFactory.CreateHook<WSASendDelegate>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "WSASend"), Detour_WsaSend, this);
+            _recvHook = HookFactory.CreateHook<RecvDelegate>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "recv"), Detour_recv, this);
+            _sendHook = HookFactory.CreateHook<SendDelegaqte>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "send"), Detour_send, this);
+            _recvfromHook = HookFactory.CreateHook<RecvfromDelegate>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "recvfrom"), Detour_recvfrom, this);
+            _sendtoHook = HookFactory.CreateHook<SendtoDelegate>(LocalHook.GetProcAddress(Interop.Libraries.Ws2_32, "sendto"), Detour_sendto, this);
 
             // Enable hooks for all threads
-            WSASendHook.Enabled = true;
-            WSARecvHook.Enabled = true;
-            RecvHook.Enabled = true;
-            SendHook.Enabled = true;
-            RecvfromHook.Enabled = true;
-            SendtoHook.Enabled = true;
+            _wsaSendHook.Enabled = true;
+            _wsaRecvHook.Enabled = true;
+            _recvHook.Enabled = true;
+            _sendHook.Enabled = true;
+            _recvfromHook.Enabled = true;
+            _sendtoHook.Enabled = true;
 
             ProcessPackets().GetAwaiter().GetResult();
         }
@@ -60,9 +60,9 @@ namespace SocketHook
                 while (true)
                 {
                     Thread.Sleep(500);
-                    if (WsaSendBufferCount > 0)
+                    if (_wsaSendBufferCount > 0)
                     {
-                        Console.WriteLine($"Sent data using WSASend {WsaSendBufferCount} time(s).");
+                        Console.WriteLine($"Sent data using WSASend {_wsaSendBufferCount} time(s).");
                     }
                 }
             }
@@ -73,7 +73,7 @@ namespace SocketHook
         }
         
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        private unsafe delegate SocketError DWSASend(
+        private unsafe delegate SocketError WSASendDelegate(
             IntPtr socketHandle,
             WSABuffer* buffers,
             int bufferCount,
@@ -95,13 +95,13 @@ namespace SocketHook
             if (This != null)
             {
                 // Increment WSASend send count
-                This.WsaSendBufferCount++;
+                This._wsaSendBufferCount++;
             }
             return Interop.Winsock.WSASend(socketHandle, buffers, bufferCount, out bytesTransferred, socketFlags, overlapped, completionRoutine);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        private unsafe delegate SocketError DWSARecv(
+        private unsafe delegate SocketError WSARecvDelegate(
             IntPtr socketHandle,
             ref WSABuffer buffer,
             int bufferCount,
@@ -123,13 +123,7 @@ namespace SocketHook
             return Interop.Winsock.WSARecv(socketHandle, &localBuffer, bufferCount, out bytesTransferred, ref socketFlags, overlapped, completionRoutine);
         }
 
-        internal unsafe delegate int Dsend(
-             [In] IntPtr socketHandle,
-             [In] byte* pinnedBuffer,
-             [In] int len,
-             [In] SocketFlags socketFlags);
-
-        internal unsafe delegate int Drecv(
+        internal unsafe delegate int RecvDelegate(
             [In] IntPtr socketHandle,
             [In] byte* pinnedBuffer,
             [In] int len,
@@ -144,6 +138,12 @@ namespace SocketHook
             return Interop.Winsock.recv(socketHandle, pinnedBuffer, len, socketFlags);
         }
 
+        internal unsafe delegate int SendDelegaqte(
+            [In] IntPtr socketHandle,
+            [In] byte* pinnedBuffer,
+            [In] int len,
+            [In] SocketFlags socketFlags);
+
         private unsafe int Detour_send(
             [In] IntPtr socketHandle,
             [In] byte* pinnedBuffer,
@@ -153,15 +153,7 @@ namespace SocketHook
             return Interop.Winsock.send(socketHandle, pinnedBuffer, len, socketFlags);
         }
 
-        internal unsafe delegate int Dsendto(
-            [In] IntPtr socketHandle,
-            [In] byte* pinnedBuffer,
-            [In] int len,
-            [In] SocketFlags socketFlags,
-            [In] byte[] socketAddress,
-            [In] int socketAddressSize);
-
-        internal unsafe delegate int Drecvfrom(
+        internal unsafe delegate int RecvfromDelegate(
             [In] IntPtr socketHandle,
             [In] byte* pinnedBuffer,
             [In] int len,
@@ -179,6 +171,14 @@ namespace SocketHook
         {
             return Interop.Winsock.recvfrom(socketHandle, pinnedBuffer, len, socketFlags, socketAddress, ref socketAddressSize);
         }
+
+        internal unsafe delegate int SendtoDelegate(
+            [In] IntPtr socketHandle,
+            [In] byte* pinnedBuffer,
+            [In] int len,
+            [In] SocketFlags socketFlags,
+            [In] byte[] socketAddress,
+            [In] int socketAddressSize);
 
         private unsafe int Detour_sendto(
             [In] IntPtr socketHandle,

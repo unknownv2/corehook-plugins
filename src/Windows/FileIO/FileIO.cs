@@ -22,11 +22,11 @@ namespace FileIO
         /// <summary>
         /// Hook handle for the kernel32.dll!ReadFile function.
         /// </summary>
-        IHook ReadFileHook;
+        private IHook _readFileHook;
         /// <summary>
         /// Hook handle for the kernel32.dll!WriteFile function.
         /// </summary>
-        IHook WriteFileHook;
+        private IHook _writeFileHook;
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
         internal delegate int ReadFileDelegate(IntPtr handle,
@@ -47,11 +47,11 @@ namespace FileIO
         /// <summary>
         /// Initialize hooks for our file I/O functions.
         /// </summary>
-        /// <param name="contex"></param>
-        public void Run(IContext contex)
+        /// <param name="context"></param>
+        public void Run(IContext context)
         {
-            ReadFileHook = HookFactory.CreateHook<ReadFileDelegate>(LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "ReadFile"), Detour_ReadFile, this);
-            WriteFileHook = HookFactory.CreateHook<WriteFileDelegate>(LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "WriteFile"), Detour_WriteFile, this);
+            _readFileHook = HookFactory.CreateHook<ReadFileDelegate>(LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "ReadFile"), Detour_ReadFile, this);
+            _writeFileHook = HookFactory.CreateHook<WriteFileDelegate>(LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "WriteFile"), Detour_WriteFile, this);
 
             DisplayFileAccess().GetAwaiter().GetResult();
         }
@@ -62,8 +62,8 @@ namespace FileIO
             await Task.Yield();
 
             // Enable detours for all threads except the current thread
-            ReadFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
-            WriteFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
+            _readFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
+            _writeFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
 
             try
             {
@@ -77,7 +77,7 @@ namespace FileIO
                         {
                             foreach (var file in FileList)
                             {
-                                Console.WriteLine($"{file.Key} was accesssed {file.Value} time(s).");
+                                Console.WriteLine($"{file.Key} was accessed {file.Value} time(s).");
                             }
                         }
                     }
