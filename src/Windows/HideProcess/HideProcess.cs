@@ -10,7 +10,7 @@ namespace HideProcess
         // https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.Process/src/System/Diagnostics/ProcessManager.Windows.cs
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        internal delegate int NtQuerySystemInformationT(int query, IntPtr dataPtr, int size, out int returnedSize);
+        internal delegate int NtQuerySystemInformationDelegate(int query, IntPtr dataPtr, int size, out int returnedSize);
 
         [StructLayout(LayoutKind.Sequential)]
         internal unsafe struct SystemProcessInformation
@@ -41,9 +41,9 @@ namespace HideProcess
         }
 
         /// <summary>
-        /// Handle for the ntdll!NtQuerySystemInformation function hook.
+        /// Handle for the ntdll.dll!NtQuerySystemInformation function hook.
         /// </summary>
-        IHook QuerySysInfo;
+        private IHook _querySysInfo;
 
         /// <summary>
         /// The name of the process to hide, for example: notepad.
@@ -59,13 +59,13 @@ namespace HideProcess
 
             // Detour the ntdll.dll!NtQuerySystemInformation function
 
-            QuerySysInfo = LocalHook.Create(
-                LocalHook.GetProcAddress("ntdll.dll", "NtQuerySystemInformation"),
-                new NtQuerySystemInformationT(Detour_NtQuerySystemInformation),
+            _querySysInfo = LocalHook.Create(
+                LocalHook.GetProcAddress(Interop.Libraries.NtDll, "NtQuerySystemInformation"),
+                new NtQuerySystemInformationDelegate(Detour_NtQuerySystemInformation),
                 this);
 
             // Activate the detour for all threads
-            QuerySysInfo.Enabled = true;
+            _querySysInfo.Enabled = true;
         }
 
         /// <summary>

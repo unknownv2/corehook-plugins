@@ -6,22 +6,22 @@ namespace SpeedHack
 {
     public class SpeedHack : IEntryPoint
     {
-        IHook GetTickCount;
-        IHook GetTickCount64;
-        IHook QueryPerformanceCounter;
-        IHook SleepEx;
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        private delegate uint GetTickCountDelegate();
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        private delegate uint GetTickCountDel();
+        private delegate ulong GetTickCount64Delegate();
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        private delegate ulong GetTickCount64Del();
+        private delegate Interop.BOOL QueryPerformanceCounterDelegate(out long performanceCount);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        private delegate Interop.BOOL QueryPerformanceCounterDel(out long performanceCount);
+        private delegate uint SleepExDelegate(uint milliSeconds, Interop.BOOL alertable);
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        private delegate uint SleepExDel(uint milliSeconds, Interop.BOOL alertable);
+        private IHook _getTickCount;
+        private IHook _getTickCount64;
+        private IHook _queryPerformanceCounter;
+        private IHook _sleepEx;
 
         private float _acceleration;
 
@@ -44,31 +44,31 @@ namespace SpeedHack
             Interop.Kernel32.QueryPerformanceCounter(out _basePerformanceCount);
 
             // Create detours for implementing the speed hack
-            GetTickCount = LocalHook.Create(
+            _getTickCount = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "GetTickCount"),
-                new GetTickCountDel(Detour_GetTickCount),
+                new GetTickCountDelegate(Detour_GetTickCount),
                 this);
             
-            GetTickCount64 = LocalHook.Create(
+            _getTickCount64 = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "GetTickCount64"),
-                new GetTickCount64Del(Detour_GetTickCount64),
+                new GetTickCount64Delegate(Detour_GetTickCount64),
                 this);
            
-            QueryPerformanceCounter = LocalHook.Create(
+            _queryPerformanceCounter = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "QueryPerformanceCounter"),
-                new QueryPerformanceCounterDel(Detour_QueryPerformanceCounter),
+                new QueryPerformanceCounterDelegate(Detour_QueryPerformanceCounter),
                 this);
             
-           SleepEx = LocalHook.Create(
+           _sleepEx = LocalHook.Create(
                LocalHook.GetProcAddress("kernel32.dll", "SleepEx"),
-               new SleepExDel(Detour_SleepEx),
+               new SleepExDelegate(Detour_SleepEx),
                this);
 
             // Enable for all threads except the current thread.
-            GetTickCount.ThreadACL.SetExclusiveACL(new int[] { 0 });
-            GetTickCount64.ThreadACL.SetExclusiveACL(new int[] { 0 });
-            QueryPerformanceCounter.ThreadACL.SetExclusiveACL(new int[] { 0 });
-            SleepEx.ThreadACL.SetExclusiveACL(new int[] { 0 });
+            _getTickCount.ThreadACL.SetExclusiveACL(new int[] { 0 });
+            _getTickCount64.ThreadACL.SetExclusiveACL(new int[] { 0 });
+            _queryPerformanceCounter.ThreadACL.SetExclusiveACL(new int[] { 0 });
+            _sleepEx.ThreadACL.SetExclusiveACL(new int[] { 0 });
         }
 
         private uint Detour_GetTickCount()
@@ -88,8 +88,8 @@ namespace SpeedHack
         private Interop.BOOL Detour_QueryPerformanceCounter(out long performanceCount)
         {
             SpeedHack This = (SpeedHack)HookRuntimeInfo.Callback;
-            long realPerformanceCount = 0;
-            var result = Interop.Kernel32.QueryPerformanceCounter(out realPerformanceCount);
+
+            var result = Interop.Kernel32.QueryPerformanceCounter(out long realPerformanceCount);
             performanceCount = (long)(This._basePerformanceCount + ((realPerformanceCount - This._basePerformanceCount)) * This._acceleration);
             return result;
         }
