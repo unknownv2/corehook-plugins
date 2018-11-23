@@ -8,9 +8,9 @@ internal partial class Interop
         [DllImport(Libraries.Kernel32, SetLastError = true)]
         internal static extern int WriteFile(
             IntPtr handle,
-            byte[] bytes,
+            IntPtr bytes,
             int numBytesToWrite,
             out int numBytesWritten,
-            IntPtr mustBeZero);
+            IntPtr overlapped);
     }
 }
