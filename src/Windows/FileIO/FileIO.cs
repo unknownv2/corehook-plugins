@@ -104,14 +104,7 @@ namespace FileIO
                 uint filePathLength = Interop.Kernel32.GetFinalPathNameByHandle(handle, filePath, This.MaxPathLength, 0);
 
                 // Check file name and increment the access count if valid
-                var fileName = new string(filePath, 0, (int)filePathLength);
-                if (!string.IsNullOrWhiteSpace(fileName))
-                {
-                    lock (This.FileList)
-                    {
-                        This.FileList[fileName] = This.FileList.ContainsKey(fileName) ? This.FileList[fileName] + 1 : 1;
-                    }
-                }
+                IncrementFileAccessCount(This.FileList, new string(filePath, 0, (int)filePathLength));
             }
             return Interop.Kernel32.ReadFile(handle, bytes, numBytesToRead, out numBytesRead, mustBeZero);
         }
@@ -130,16 +123,25 @@ namespace FileIO
                 uint filePathLength = Interop.Kernel32.GetFinalPathNameByHandle(handle, filePath, This.MaxPathLength, 0);
 
                 // Check file name and increment the access count if valid
-                var fileName = new string(filePath, 0, (int)filePathLength);
-                if (!string.IsNullOrWhiteSpace(fileName))
-                {
-                    lock (This.FileList)
-                    {
-                        This.FileList[fileName] = This.FileList.ContainsKey(fileName) ? This.FileList[fileName] + 1 : 1;
-                    }
-                }
+                IncrementFileAccessCount(This.FileList, new string(filePath, 0, (int)filePathLength));
             }
             return Interop.Kernel32.WriteFile(handle, bytes, numBytesToWrite, out numBytesWritten, overlapped);
+        }
+
+        /// <summary>
+        /// Increase the number of times a file was accessed from an I/O function.
+        /// </summary>
+        /// <param name="fileList">The list of files and their current access count.</param>
+        /// <param name="fileName">The name of the file being accessed.</param>
+        private void IncrementFileAccessCount(Dictionary<string, int> fileList, string fileName)
+        {
+            if (!string.IsNullOrWhiteSpace(fileName))
+            {
+                lock (fileList)
+                {
+                    fileList[fileName] = fileList.ContainsKey(fileName) ? fileList[fileName] + 1 : 1;
+                }
+            }
         }
     }
 }
