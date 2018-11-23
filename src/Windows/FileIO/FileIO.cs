@@ -12,6 +12,16 @@ namespace FileIO
 
         }
 
+        private int Detour_ReadFile(
+            IntPtr handle,
+            byte[] bytes,
+            int numBytesToRead,
+            out int numBytesRead,
+            IntPtr mustBeZero)
+        {
+            return Interop.Kernel32.ReadFile(handle, bytes, numBytesToRead, out numBytesRead, mustBeZero);
+        }
+
         private int Detour_WriteFile(IntPtr handle,
             byte[] bytes,
             int numBytesToWrite,

@@ -11,6 +11,9 @@
     <Compile Include="$(CommonPath)\Interop\Windows\Interop.Libraries.cs">
       <Link>Common\Interop\Windows\Interop.Libraries.cs</Link>
     </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.ReadFile_IntPtr.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.ReadFile_IntPtr.cs</Link>
+    </Compile>    
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.WriteFile_IntPtr.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.WriteFile_IntPtr.cs</Link>
     </Compile>
