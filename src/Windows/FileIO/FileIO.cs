@@ -28,14 +28,14 @@ namespace FileIO
         /// </summary>
         private IHook _writeFileHook;
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         internal delegate int ReadFileDelegate(IntPtr handle,
             IntPtr bytes,
             int numBytesToRead,
             out int numBytesRead,
             IntPtr mustBeZero);
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         internal delegate int WriteFileDelegate(IntPtr handle,
             IntPtr bytes,
             int numBytesToWrite,
