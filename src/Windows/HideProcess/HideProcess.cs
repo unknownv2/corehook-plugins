@@ -9,7 +9,7 @@ namespace HideProcess
         // Process structures and GetProcessShortName code from:
         // https://github.com/dotnet/corefx/blob/master/src/System.Diagnostics.Process/src/System/Diagnostics/ProcessManager.Windows.cs
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         internal delegate int NtQuerySystemInformationDelegate(int query, IntPtr dataPtr, int size, out int returnedSize);
 
         [StructLayout(LayoutKind.Sequential)]

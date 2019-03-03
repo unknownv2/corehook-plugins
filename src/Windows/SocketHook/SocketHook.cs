@@ -72,7 +72,7 @@ namespace SocketHook
             }
         }
         
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         private unsafe delegate SocketError WSASendDelegate(
             IntPtr socketHandle,
             WSABuffer* buffers,
@@ -100,7 +100,7 @@ namespace SocketHook
             return Interop.Winsock.WSASend(socketHandle, buffers, bufferCount, out bytesTransferred, socketFlags, overlapped, completionRoutine);
         }
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         private unsafe delegate SocketError WSARecvDelegate(
             IntPtr socketHandle,
             ref WSABuffer buffer,
@@ -123,6 +123,7 @@ namespace SocketHook
             return Interop.Winsock.WSARecv(socketHandle, &localBuffer, bufferCount, out bytesTransferred, ref socketFlags, overlapped, completionRoutine);
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         internal unsafe delegate int RecvDelegate(
             [In] IntPtr socketHandle,
             [In] byte* pinnedBuffer,
@@ -138,6 +139,7 @@ namespace SocketHook
             return Interop.Winsock.recv(socketHandle, pinnedBuffer, len, socketFlags);
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         internal unsafe delegate int SendDelegaqte(
             [In] IntPtr socketHandle,
             [In] byte* pinnedBuffer,
@@ -153,6 +155,7 @@ namespace SocketHook
             return Interop.Winsock.send(socketHandle, pinnedBuffer, len, socketFlags);
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         internal unsafe delegate int RecvfromDelegate(
             [In] IntPtr socketHandle,
             [In] byte* pinnedBuffer,
@@ -172,6 +175,7 @@ namespace SocketHook
             return Interop.Winsock.recvfrom(socketHandle, pinnedBuffer, len, socketFlags, socketAddress, ref socketAddressSize);
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         internal unsafe delegate int SendtoDelegate(
             [In] IntPtr socketHandle,
             [In] byte* pinnedBuffer,
